@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -16,9 +17,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->when(request()->q, function($subjects) {
-            $subjects = $subjects->where('name', 'like', '%'. request()->q . '%')
-            ->orWhere('code', 'like', '%' . request()->q . '%');
+        $users = User::latest()->when(request()->q, function($users) {
+            $users = $users->where('name', 'like', '%'. request()->q . '%');
         })->paginate(10);
 
         return view('user.index', compact('users'));
@@ -43,7 +43,6 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
             'nisn' => 'nullable|string|max:20|unique:users,nisn',
             'nip' => 'nullable|string|max:20|unique:users,nip',
             'no_kartu' => 'nullable|string|max:50|unique:users,no_kartu',
@@ -55,14 +54,13 @@ class UserController extends Controller
             'village' => 'nullable|string',
             'address' => 'nullable|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'is_active' => 'nullable|boolean',
         ]);
         
         // Create new user
         $users = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
+            'password' => Hash::make('12345678'),
             'nisn' => $request->input('nisn'),
             'nip' => $request->input('nip'),
             'no_kartu' => $request->input('no_kartu'),
@@ -83,7 +81,23 @@ class UserController extends Controller
             $users->photo = $filePath;
             $users->save();
         }
+        // Generate QR Code only for student and teacher roles
+    $role = $request->input('role');
+    if ($role === 'Student' || $role === 'Teacher') {
+        // Customize QR code content based on role
+        if ($role === 'Student') {
+            $qrCodeContent = "NISN: {$users->nisn}, NAMA: {$users->name}, EMAIL: {$users->email}, ROLE: {$role}";
+        } else {
+            $qrCodeContent = "NIP: {$users->nip}, NAMA: {$users->name}, EMAIL: {$users->email}, ROLE: {$role}";
+        }
         
+        $qrCodeImage = QrCode::size(85)
+            ->generate($qrCodeContent);
+        
+        // Save QR Code
+        $users->qr_code = $qrCodeImage;
+        $users->save();
+    }
         // Assign role to user
         $users->assignRole($request->input('role'));
         

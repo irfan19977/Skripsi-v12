@@ -5,6 +5,7 @@
 <!-- forms-advanced-form.html  21 Nov 2019 03:54:41 GMT -->
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>Otika - Admin Dashboard Template</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -21,7 +22,7 @@
   <link rel="stylesheet" href="{{ asset('backend/assets/css/components.css') }}">
   <!-- Custom style CSS -->
   <link rel="stylesheet" href="{{ asset('backend/assets/css/custom.css') }}">
-  <link rel='shortcut icon' type='image/x-icon' href='{{ asset('backend/assets/img/favicon.ico') }}' />
+  <link rel='shortcut icon' type='image/x-icon' href='{{ asset('logo.png') }}' />
 
   <!-- Template CSS -->
   <link rel="stylesheet" href="{{ asset('backend/assets/bundles/pretty-checkbox/pretty-checkbox.min.css') }}">

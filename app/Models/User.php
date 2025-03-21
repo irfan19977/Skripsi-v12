@@ -76,4 +76,14 @@ class User extends Authenticatable
     {
         return $this->is_active;
     }
+
+    public function studentClasses()
+    {
+        return $this->hasMany(StudentClass::class, 'student_id');
+    }
+
+    public function classRoom()
+    {
+        return $this->belongsToMany(Classes::class, 'student_class', 'student_id', 'class_id');
+    }
 }

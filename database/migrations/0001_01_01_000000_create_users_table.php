@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('village')->nullable();
             $table->string('address')->nullable();
             $table->string('photo')->nullable();
-            $table->string('qr_code')->nullable()->unique();
+            $table->text('qr_code')->nullable()->unique();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

@@ -88,60 +88,63 @@
     </div>
   </div>
 
+@endsection
+
+@push('script')
   <script>
-    function confirmDelete(id) {
-      swal({
-        title: "Apakah Anda Yakin?",
-        text: "Data ini akan dihapus secara permanen!",
-        icon: "warning",
-        buttons: [
-          'Tidak',
-          'Ya, Hapus'
-        ],
-        dangerMode: true,
-      }).then(function(isConfirm) {
-        if (isConfirm) {
-          const form = document.getElementById(`delete-form-${id}`);
-          const url = form.action;
+      function confirmDelete(id) {
+        swal({
+          title: "Apakah Anda Yakin?",
+          text: "Data ini akan dihapus secara permanen!",
+          icon: "warning",
+          buttons: [
+            'Tidak',
+            'Ya, Hapus'
+          ],
+          dangerMode: true,
+        }).then(function(isConfirm) {
+          if (isConfirm) {
+            const form = document.getElementById(`delete-form-${id}`);
+            const url = form.action;
 
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-              _method: 'DELETE'
+            fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+              },
+              body: JSON.stringify({
+                _method: 'DELETE'
+              })
             })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              swal({
-                title: "Berhasil!",
-                text: "Data berhasil dihapus.",
-                icon: "success",
-                timer: 3000,
-                buttons: false
-              }).then(() => {
-                // Hapus baris tabel
-                const rowToRemove = document.querySelector(`#delete-form-${id}`).closest('tr');
-                rowToRemove.remove();
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                swal({
+                  title: "Berhasil!",
+                  text: "Data berhasil dihapus.",
+                  icon: "success",
+                  timer: 3000,
+                  buttons: false
+                }).then(() => {
+                  // Hapus baris tabel
+                  const rowToRemove = document.querySelector(`#delete-form-${id}`).closest('tr');
+                  rowToRemove.remove();
 
-                // Perbarui nomor urut
-                renumberTableRows();
-              });
-            } else {
+                  // Perbarui nomor urut
+                  renumberTableRows();
+                });
+              } else {
+                swal("Gagal", "Terjadi kesalahan saat menghapus data.", "error");
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
               swal("Gagal", "Terjadi kesalahan saat menghapus data.", "error");
-            }
-          })
-          .catch(error => {
-            console.error("Error:", error);
-            swal("Gagal", "Terjadi kesalahan saat menghapus data.", "error");
-          });
-        }
-      });
-    }
+            });
+          }
+        });
+      }
   </script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -210,6 +213,4 @@
         });
     });
   </script>
-  
-@endsection
-
+@endpush

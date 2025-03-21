@@ -15,7 +15,20 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/css/components.css') }}">
     <!-- Custom style CSS -->
     <link rel="stylesheet" href="{{ asset('backend/assets/css/custom.css') }}">
-    <link rel='shortcut icon' type='image/x-icon' href='{{ ('backend/assets/img/favicon.ico') }}' />
+    <link rel='shortcut icon' type='image/x-icon' href='{{ asset('logo.png') }}' />
+    <style>
+        .custom-whatsapp:hover {
+            background-color: #28a745 !important;
+            filter: brightness(95%) !important;
+            border-color: #28a745 !important;
+        }
+        
+        .custom-telegram:hover {
+            background-color: #17a2b8 !important;
+            filter: brightness(95%) !important;
+            border-color: #17a2b8 !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -79,24 +92,25 @@
                                     </div>
                                 </form>
                                 <div class="text-center mt-4 mb-3">
-                                    <div class="text-job text-muted">Login With Social</div>
+                                    <div class="text-job text-muted">Hubungi Administrator</div>
                                 </div>
                                 <div class="row sm-gutters">
+                                    <!-- WhatsApp Button -->
                                     <div class="col-6">
-                                        <a class="btn btn-block btn-social btn-facebook">
-                                            <span class="fab fa-facebook"></span> Facebook
+                                        <a href="https://wa.me/6282233088346" class="btn btn-block btn-social btn-success custom-whatsapp" tabindex="4">
+                                            <span class="fab fa-whatsapp"></span> Whatsapp
                                         </a>
                                     </div>
+                                    
+                                    <!-- Telegram Button -->
                                     <div class="col-6">
-                                        <a class="btn btn-block btn-social btn-twitter">
-                                            <span class="fab fa-twitter"></span> Twitter
+                                        <a href="https://t.me/Hekel256" class="btn btn-block btn-social btn-info custom-telegram" tabindex="5">
+                                            <span class="fab fa-telegram"></span> Telegram
                                         </a>
                                     </div>
+                                    <small class="text-muted" style="margin-top: 10px">*Hubungi hanya jika ada permasalahan saja</small>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-5 text-muted text-center">
-                            Belum Punya Akun? <a href="{{ route('register') }}">Daftar Akun</a>
                         </div>
                     </div>
                 </div>

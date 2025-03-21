@@ -93,9 +93,10 @@
             </div>
         </li>
         <li class="dropdown"><a href="#" data-toggle="dropdown"
-                class="nav-link dropdown-toggle nav-link-lg nav-link-user"> <img alt="image"
-                    src="{{ asset('backend/assets/img/user.png') }}"
-                    class="user-img-radious-style"> <span class="d-sm-none d-lg-inline-block"></span></a>
+                class="nav-link dropdown-toggle nav-link-lg nav-link-user"> <img alt="image" 
+                src="{{ Auth::user()->photo ? Storage::url(Auth::user()->photo) : asset('backend/assets/img/user.png') }}" 
+                class="user-img-radious-style" 
+                style="width: 40px; height: 40px;"></a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
                 <div class="dropdown-title">Hello {{ Auth::user()->name }}</div>
                 <a href="{{ route('profile.edit') }}" class="dropdown-item has-icon"> <i class="far

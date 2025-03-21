@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('student_id');
             $table->uuid('class_id');
-            $table->string('academic_year');
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('users');

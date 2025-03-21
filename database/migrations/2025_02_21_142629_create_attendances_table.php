@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('attendances', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->uuid('student_id');
             $table->uuid('teacher_id');
             $table->uuid('subject_id');
-            $table->enum('date', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
+            $table->date('date');
             $table->time('time');
-            $table->string('status');
-            $table->string('notes');
+            $table->enum('status', ['Hadir', 'Izin', 'Sakit', 'Alpha'])->default('Hadir');
+            $table->string('notes')->nullable();
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('users');

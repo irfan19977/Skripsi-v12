@@ -55,9 +55,14 @@
                     @endforeach
                 </td>
                 <td>
-                  {{ ucwords(strtolower($student->city)) }},<br>
-                  {{ ucwords(strtolower($student->district)) }},<br>
-                  {{ ucwords(strtolower($student->village)) }}
+                    @if ($student === 'city')
+                        {{ ucwords(strtolower($student->city)) }},<br>
+                        {{ ucwords(strtolower($student->district)) }},<br>
+                        {{ ucwords(strtolower($student->village)) }}
+                    @else
+                        <div class="text-center">-</div>
+                    @endif
+                  
                 </td>
                 <td class="text-center"> 
                   <div style="width: 90px; height: 90px; display: inline-block;">

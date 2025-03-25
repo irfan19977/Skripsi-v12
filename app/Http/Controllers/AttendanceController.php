@@ -192,7 +192,7 @@ class AttendanceController extends Controller
     
         if (!$schedule) {
             return response()->json([
-                'message' => 'Tidak ada jadwal pelajaran saat ini',
+                'message' =>  'Tidak ada jadwal pelajaran saat ini',
             ], 404);
         }
     

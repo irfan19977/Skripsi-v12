@@ -37,7 +37,7 @@ class RFIDController extends Controller
                     'is_used' => $isUsed,
                     'user_name' => $isUsed ? $existingUser->name : null,
                     'timestamp' => Carbon::now()->timestamp
-                ], now()->addMinutes(5)); // Keep in cache for 5 minutes
+                ], now()->addSeconds(5)); // Keep in cache for 5 minutes
                 
                 return response()->json([
                     'status' => 'success',

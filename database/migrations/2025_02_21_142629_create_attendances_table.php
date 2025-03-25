@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->enum('status', ['Hadir', 'Izin', 'Sakit', 'Alpha'])->default('Hadir');
+            $table->enum('timing_status', ['Tepat Waktu', 'Terlambat', 'Tidak Absen', 'Keduanya'])->nullable();
             $table->string('notes')->nullable();
             $table->timestamps();
 

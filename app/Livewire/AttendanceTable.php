@@ -9,6 +9,7 @@ use App\Models\Subject;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -34,7 +35,10 @@ class AttendanceTable extends Component
     public $currentDayOfWeek = '';
     
     // Listener untuk event
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = [
+        'refresh' => '$refresh',
+        'refreshAttendances' => 'autoUpdateAttendances'
+    ];
     
     protected $queryString = ['class_id', 'subject_id', 'start_date', 'end_date', 'search', 'selectedSubject'];
     
@@ -62,19 +66,77 @@ class AttendanceTable extends Component
             $this->loadTeacherSubjects();
             $this->setDefaultTeacherSubject();
         }
+
+        // Run auto update attendances when mounting
+        $this->autoUpdateAttendances();
     }
     
+    // Metode untuk melakukan update otomatis absensi (auto-alpha)
+    public function autoUpdateAttendances()
+    {
+        // Dapatkan waktu saat ini
+        $now = Carbon::now('Asia/Jakarta');
+
+        // Pemetaan hari dalam bahasa Indonesia
+        $dayMap = [
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa', 
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+            'Sunday' => 'Minggu'
+        ];
+
+        $currentDay = $dayMap[$now->format('l')];
+        $currentTime = $now->format('H:i:s');
+
+        // Dapatkan semua jadwal untuk hari ini yang sudah berakhir
+        $endedSchedules = Schedule::where('day', $currentDay)
+            ->where('end_time', '<', $currentTime)
+            ->get();
+
+        foreach ($endedSchedules as $schedule) {
+            // Dapatkan semua siswa di kelas
+            $students = User::role('Student')
+                ->whereHas('studentClasses', function ($query) use ($schedule) {
+                    $query->where('class_id', $schedule->class_id);
+                })->get();
+
+            foreach ($students as $student) {
+                // Periksa apakah siswa sudah melakukan absensi untuk mata pelajaran ini hari ini
+                $existingAttendance = Attendance::where('student_id', $student->id)
+                    ->where('subject_id', $schedule->subject_id)
+                    ->whereDate('date', Carbon::today())
+                    ->exists();
+
+                if (!$existingAttendance) {
+                    // Buat rekaman absensi dengan status 'alpha'
+                    Attendance::create([
+                        'student_id' => $student->id,
+                        'subject_id' => $schedule->subject_id,
+                        'teacher_id' => $schedule->teacher_id,
+                        'date' => Carbon::today()->format('Y-m-d'),
+                        'time' => $schedule->end_time,
+                        'status' => 'Alpha',
+                        'notes' => 'Absensi otomatis - Tidak hadir'
+                    ]);
+                }
+            }
+        }
+    }
+
     public function setDefaultTeacherSubject()
     {
         if (!empty($this->selectedSubject)) {
-            // If subject is already selected (from query string), use that
+            // Jika mata pelajaran sudah dipilih (dari query string), gunakan itu
             return;
         }
         
         $teacherId = Auth::id();
         $currentTime = Carbon::now()->format('H:i:s');
         
-        // Try to find current ongoing class based on day and time
+        // Coba temukan kelas yang sedang berlangsung berdasarkan hari dan waktu
         $currentSchedule = Schedule::where('teacher_id', $teacherId)
             ->where('day', $this->currentDayOfWeek)
             ->where('start_time', '<=', $currentTime)
@@ -83,10 +145,10 @@ class AttendanceTable extends Component
             ->first();
         
         if ($currentSchedule) {
-            // If there's a current class, use that subject
+            // Jika ada kelas saat ini, gunakan mata pelajaran tersebut
             $this->selectedSubject = $currentSchedule->subject_id;
         } else {
-            // If no current class, try to find the latest class for today
+            // Jika tidak ada kelas saat ini, cari jadwal terakhir untuk hari ini
             $latestSchedule = Schedule::where('teacher_id', $teacherId)
                 ->where('day', $this->currentDayOfWeek)
                 ->where(function($query) use ($currentTime) {
@@ -100,17 +162,17 @@ class AttendanceTable extends Component
             if ($latestSchedule) {
                 $this->selectedSubject = $latestSchedule->subject_id;
             } else if (count($this->teacherSubjects) > 0) {
-                // If no schedule for today, use the first subject in the list
+                // Jika tidak ada jadwal hari ini, gunakan mata pelajaran pertama dalam daftar
                 $this->selectedSubject = $this->teacherSubjects[0]['id'];
             }
         }
         
-        // Load attendance data for the selected subject
+        // Muat data absensi untuk mata pelajaran yang dipilih
         if (!empty($this->selectedSubject)) {
             $this->loadTeacherAttendanceData();
         }
     }
-    
+
     public function resetFilters()
     {
         $this->reset(['class_id', 'subject_id', 'start_date', 'end_date', 'search']);
@@ -263,12 +325,12 @@ class AttendanceTable extends Component
         // Ambil data kelas dan mata pelajaran
         $classes = Classes::all();
         
-        // For teacher view, load the attendance data
+        // Untuk tampilan guru, muat data absensi
         if ($this->isTeacher && !empty($this->selectedSubject)) {
             $this->loadTeacherAttendanceData();
         }
         
-        // For admin view, get attendance data with filtering
+        // Untuk tampilan admin, dapatkan data absensi dengan filter
         $attendances = Attendance::query()
             ->with(['student', 'subject', 'teacher'])
             ->when($this->class_id, function ($query) {
@@ -294,7 +356,7 @@ class AttendanceTable extends Component
                 });
             })
             ->when($this->isTeacher, function ($query) {
-                // If user is a teacher, only show their attendances
+                // Jika pengguna adalah guru, hanya tampilkan absensi miliknya
                 return $query->where('teacher_id', Auth::id());
             })
             ->orderBy('date', 'desc')

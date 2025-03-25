@@ -1,4 +1,4 @@
-<div wire:poll.1ms>
+<div wire:poll.1m="autoUpdateAttendances">
     <!-- Admin Attendance Records -->
     @if(!$isTeacher)
     <div class="card">
@@ -67,13 +67,13 @@
                     <thead>
                         <tr>
                             <th class="text-center">No.</th>
-                            <th>NAMA SISWA</th>
-                            <th>PELAJARAN</th>
-                            <th>PENGAJAR</th>
-                            <th>TANGGAL</th>
-                            <th>WAKTU</th>
-                            <th>STATUS</th>
-                            <th>CATATAN</th>
+                            <th class="text-center">NAMA SISWA</th>
+                            <th class="text-center">PELAJARAN</th>
+                            <th class="text-center">PENGAJAR</th>
+                            <th class="text-center">TANGGAL</th>
+                            <th class="text-center">WAKTU</th>
+                            <th class="text-center">STATUS</th>
+                            <th class="text-center">CATATAN</th>
                             @can('attendances.edit')
                                 <th>AKSI</th>
                             @endcan
@@ -90,7 +90,7 @@
                                 <td>{{ $attendance->teacher->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d-m-Y') }}</td>
                                 <td>{{ $attendance->time }}</td>
-                                <td>
+                                <td class="text-center">
                                     @if ($attendance->status == 'Hadir')
                                         <span class="badge badge-success">{{ $attendance->status }}</span>
                                     @elseif ($attendance->status == 'Izin')
